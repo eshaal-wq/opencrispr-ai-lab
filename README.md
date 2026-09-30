@@ -32,6 +32,11 @@ Works with any FASTA file.
 
 ##  Privacy
 All validation happens locally in your browser. No data is sent to any server.
+## Credits & References
+- This tool is built to support [OpenCRISPR-1](https://github.com/Profluent-Bio/OpenCRISPR) by Profluent Bio
+- OpenCRISPR-1 is an open-source AI-generated gene editor, released under MIT License
+- FASTA format specification: NCBI
+- This project is not affiliated with Profluent Bio, but built as a companion validation tool for the Open Science community.
 
 ##  Global Hack Week - Oct 2026
 Built for GHW - Open Science / AI for Good Challenge
