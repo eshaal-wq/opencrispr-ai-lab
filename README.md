@@ -33,6 +33,18 @@ Works with any FASTA file.
 ##  Privacy
 All validation happens locally in your browser. No data is sent to any server.
 ## Credits & References
+**OpenCRISPR-1 Source:**
+- Profluent Bio / Profluent-AI - [OpenCRISPR Repository](https://github.com/Profluent-AI/OpenCRISPR)
+- Specific sequence reference: [Commit f1292047df9f502af40ae3d25ec8fdc508325da9](https://github.com/Profluent-AI/OpenCRISPR/commit/f1292047df9f502af40ae3d25ec8fdc508325da9#diff-b335630551682c19a781afebcf4d07bf978fb1f8ac04c6bf87428ed5106870f5)
+- Paper: Ruffolo, Nayfach, Gallagher, Bhatnagar et al., Nature (2025) - https://www.nature.com/articles/s41586-025-09298-z
+- License: Free for ethical research & commercial use under Profluent's OpenCRISPR License Agreement
+
+**My Contribution:**
+I built a browser-based FASTA validation & translation tool to help researchers quickly verify sequences before using OpenCRISPR-1. No server upload, 100% private. This is a companion tool, not a fork of the editor itself.
+<p style="font-size:12px">Built for MLH GHW | Sequences reference Profluent-AI/OpenCRISPR (MIT-style ethical license) | Not affiliated with Profluent Bio</p>
+
+**Test Data:**
+Sample FASTA files validated against OpenCRISPR-1 reference sequences (above commit) for educational purposes.
 - This tool is built to support [OpenCRISPR-1](https://github.com/Profluent-Bio/OpenCRISPR) by Profluent Bio
 - OpenCRISPR-1 is an open-source AI-generated gene editor, released under MIT License
 - FASTA format specification: NCBI
@@ -43,6 +55,7 @@ All validation happens locally in your browser. No data is sent to any server.
   author  = {Ruffolo, Jeffrey A. and Nayfach, Stephen and Gallagher, Joseph and Bhatnagar, Aadyot and Beazer, Joel and Hussain, Riffat and Russ, Jordan and Yip, Jennifer and Hill, Emily and Pacesa, Martin and Meeske, Alexander J. and Cameron, Peter and Madani, Ali},
   journal = {bioRxiv},
   year    = {2024}
+  
 
 ##  Global Hack Week - Oct 2026
 Built for GHW - Open Science / AI for Good Challenge
