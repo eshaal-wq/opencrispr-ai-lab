@@ -1,0 +1,333 @@
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpenCRISPR-1 FASTA tools</title>
+<style>
+  :root {
+    --bg: #eef2f1;
+    --panel: #ffffff;
+    --ink: #16262b;
+    --muted: #5e7378;
+    --line: #cfdad9;
+    --accent: #0f6e73;
+    --accent-ink: #ffffff;
+    --bad: #b4432f;
+    --good: #2f7d4f;
+    --seq-bg: #f5f8f7;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #101a1d;
+      --panel: #16242a;
+      --ink: #e4eeee;
+      --muted: #91a9ad;
+      --line: #2a3f45;
+      --accent: #5cc4c9;
+      --accent-ink: #0b1a1d;
+      --bad: #ff8b73;
+      --good: #7fd6a0;
+      --seq-bg: #1b2c33;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-padding-top: 1rem; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.55 "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  }
+  main { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; }
+  h1 { font-size: 2rem; line-height: 1.15; margin: 0 0 .5rem; letter-spacing: -.01em; }
+  h2 { font-size: 1.2rem; margin: 0 0 .25rem; }
+  p.lede { color: var(--muted); max-width: 60ch; margin: 0 0 2rem; }
+  .mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+  section.panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+  textarea {
+    width: 100%;
+    min-height: 200px;
+    resize: vertical;
+    padding: .75rem;
+    background: var(--seq-bg);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    font: 13px/1.4 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  .row { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .75rem; align-items: center; }
+  button, label.file {
+    font: inherit;
+    font-size: .95rem;
+    padding: .5rem .95rem;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    color: var(--ink);
+    cursor: pointer;
+  }
+  button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+  button:hover, label.file:hover { border-color: var(--accent); }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  input[type=file] { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  label.file:focus-within { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .msg { color: var(--muted); font-size: .9rem; }
+  .msg.err { color: var(--bad); }
+
+  .rec { border-top: 1px solid var(--line); padding-top: 1rem; margin-top: 1rem; }
+  .rec:first-child { border-top: 0; padding-top: 0; margin-top: 0; }
+  .rec-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem; align-items: baseline; }
+  .tag { font-size: .8rem; padding: .1rem .5rem; border: 1px solid var(--accent); color: var(--accent); border-radius: 99px; }
+  dl.stats { display: flex; flex-wrap: wrap; gap: 1.5rem; margin: .6rem 0; }
+  dl.stats div { min-width: 5rem; }
+  dl.stats dt { color: var(--muted); font-size: .82rem; }
+  dl.stats dd { margin: 0; font-size: 1.15rem; font-weight: 600; }
+  .bar { height: 8px; background: var(--seq-bg); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; margin: .25rem 0 .75rem; max-width: 360px; }
+  .bar span { display: block; height: 100%; background: var(--accent); }
+  .comp { display: flex; flex-wrap: wrap; gap: .35rem; margin: .4rem 0; }
+  .comp span { font: 12px ui-monospace, Menlo, Consolas, monospace; background: var(--seq-bg); border: 1px solid var(--line); border-radius: 3px; padding: .1rem .4rem; }
+  details { margin-top: .6rem; }
+  summary { cursor: pointer; color: var(--accent); }
+  pre.seq {
+    margin: .5rem 0 0;
+    padding: .75rem;
+    background: var(--seq-bg);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    font: 12.5px/1.5 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 260px;
+    overflow: auto;
+  }
+  .result { border-left: 4px solid var(--line); padding: .5rem .9rem; margin-top: .75rem; }
+  .result.ok { border-color: var(--good); }
+  .result.bad { border-color: var(--bad); }
+  .result ul { margin: .4rem 0 0; padding-left: 1.2rem; }
+  .table-wrap { overflow-x: auto; }
+  footer { color: var(--muted); font-size: .85rem; margin-top: 2rem; }
+  @media (prefers-reduced-motion: no-preference) { button { transition: border-color .15s; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>OpenCRISPR-1 FASTA tools</h1>
+  <p class="lede">Paste FASTA records or open a file. The page reports each sequence, and checks that a DNA coding sequence translates to the protein record. Everything runs in your browser; nothing is uploaded.</p>
+
+  <section class="panel" aria-labelledby="in-h">
+    <h2 id="in-h">Input</h2>
+    <label for="fasta" class="msg">FASTA text (protein, DNA, or sgRNA records)</label>
+    <textarea id="fasta" spellcheck="false" placeholder=">protein&#10;MKKPYSIG...&#10;>cds&#10;ATGAAGAAG..."></textarea>
+    <div class="row">
+      <button class="primary" id="run" type="button">Analyze</button>
+      <label class="file">Open FASTA file<input type="file" id="file" accept=".fa,.fasta,.fna,.faa,.txt,text/plain"></label>
+      <button type="button" id="example">Load small example</button>
+      <button type="button" id="clear">Clear</button>
+      <span id="status" class="msg" role="status" aria-live="polite"></span>
+    </div>
+  </section>
+
+  <section class="panel" id="results-panel" hidden aria-labelledby="res-h">
+    <h2 id="res-h">Records</h2>
+    <div id="records"></div>
+    <div id="check"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="rc-h">
+    <h2 id="rc-h">Reverse complement</h2>
+    <label for="rc-in" class="msg">DNA sequence</label>
+    <textarea id="rc-in" style="min-height:70px" spellcheck="false"></textarea>
+    <div class="row"><button type="button" id="rc-go">Reverse complement</button><button type="button" id="rc-copy">Copy result</button></div>
+    <pre class="seq" id="rc-out" aria-live="polite">Result appears here.</pre>
+  </section>
+
+  <footer>OpenCRISPR-1 was released openly by Profluent; check its license terms before redistributing the sequences.</footer>
+</main>
+
+<script>
+"use strict";
+
+// ---- Genetic code (standard) -------------------------------------------
+const BASES = "TCAG";
+const AMINO = "FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG";
+const CODON_TABLE = {};
+{
+  let i = 0;
+  for (const a of BASES) for (const b of BASES) for (const c of BASES) {
+    CODON_TABLE[a + b + c] = AMINO[i++];
+  }
+}
+const PROTEIN_ALPHABET = new Set("ACDEFGHIKLMNPQRSTVWY*");
+const DNA_ALPHABET = new Set("ACGT");
+
+// ---- Core functions ------------------------------------------------------
+function parseFasta(text) {
+  const records = [];
+  let header = null, chunks = [];
+  for (let line of text.split(/\r?\n/)) {
+    line = line.trim();
+    if (!line) continue;
+    if (line.startsWith(">")) {
+      if (header !== null) records.push({ header, seq: chunks.join("").toUpperCase() });
+      header = line.slice(1).trim();
+      chunks = [];
+    } else {
+      chunks.push(line.replace(/\s+/g, ""));
+    }
+  }
+  if (header !== null) records.push({ header, seq: chunks.join("").toUpperCase() });
+  return records;
+}
+
+function classify(rec) {
+  const chars = new Set(rec.seq);
+  const allIn = (alpha) => [...chars].every((c) => alpha.has(c));
+  if (allIn(DNA_ALPHABET)) {
+    const guide = /sgrna|grna|crrna|tracr/i.test(rec.header);
+    return guide || rec.seq.length < 300 ? "sgRNA / short DNA" : "DNA coding sequence";
+  }
+  if (allIn(PROTEIN_ALPHABET)) return "protein";
+  return "unknown";
+}
+
+function gcContent(seq) {
+  if (!seq.length) return 0;
+  let gc = 0;
+  for (const c of seq) if (c === "G" || c === "C") gc++;
+  return (100 * gc) / seq.length;
+}
+
+function translate(dna, toStop = true) {
+  let out = "";
+  for (let i = 0; i + 3 <= dna.length; i += 3) {
+    const aa = CODON_TABLE[dna.slice(i, i + 3)] || "X";
+    if (aa === "*" && toStop) break;
+    out += aa;
+  }
+  return out;
+}
+
+function reverseComplement(dna) {
+  const map = { A: "T", T: "A", G: "C", C: "G", N: "N" };
+  return [...dna.toUpperCase().replace(/[^ACGTN]/g, "")].reverse().map((c) => map[c]).join("");
+}
+
+function compareProteins(expected, observed) {
+  const diffs = [];
+  const n = Math.min(expected.length, observed.length);
+  for (let i = 0; i < n; i++) {
+    if (expected[i] !== observed[i]) diffs.push({ pos: i + 1, expected: expected[i], observed: observed[i] });
+  }
+  return { diffs, lengthMatch: expected.length === observed.length };
+}
+
+function composition(seq) {
+  const counts = {};
+  for (const c of seq) counts[c] = (counts[c] || 0) + 1;
+  return Object.entries(counts).sort((a, b) => b[1] - a[1]);
+}
+
+// ---- Rendering -----------------------------------------------------------
+const $ = (id) => document.getElementById(id);
+const esc = (s) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+function renderRecord(rec, kind) {
+  const isDna = kind === "sgRNA / short DNA" || kind === "DNA coding sequence";
+  let stats = `<div><dt>Length</dt><dd>${rec.seq.length.toLocaleString()} ${isDna ? "nt" : "aa"}</dd></div>`;
+  let extra = "";
+  if (isDna) {
+    const gc = gcContent(rec.seq);
+    stats += `<div><dt>GC content</dt><dd>${gc.toFixed(1)}%</dd></div>`;
+    extra += `<div class="bar" role="img" aria-label="GC content ${gc.toFixed(1)} percent"><span style="width:${gc.toFixed(1)}%"></span></div>`;
+    if (kind === "DNA coding sequence") {
+      stats += `<div><dt>Codons</dt><dd>${Math.floor(rec.seq.length / 3).toLocaleString()}</dd></div>`;
+      if (rec.seq.length % 3 !== 0) extra += `<p class="msg err">Length is not a multiple of 3; the last ${rec.seq.length % 3} base(s) are ignored on translation.</p>`;
+    }
+  } else if (kind === "protein") {
+    const top = composition(rec.seq).slice(0, 8).map(([a, n]) => `<span>${a} ${n}</span>`).join("");
+    extra += `<p class="msg" style="margin:.3rem 0 0">Most common residues</p><div class="comp">${top}</div>`;
+  }
+  return `
+    <article class="rec">
+      <div class="rec-head"><h3 style="margin:0;font-size:1rem">${esc(rec.header)}</h3><span class="tag">${kind}</span></div>
+      <dl class="stats">${stats}</dl>
+      ${extra}
+      <details><summary>Show sequence</summary><pre class="seq">${esc(rec.seq)}</pre></details>
+    </article>`;
+}
+
+function renderCheck(records, kinds) {
+  const protIdx = kinds.indexOf("protein");
+  const cdsIdx = kinds.indexOf("DNA coding sequence");
+  if (protIdx < 0 || cdsIdx < 0) return "";
+  const expected = records[protIdx].seq.replace(/\*+$/, "");
+  const translated = translate(records[cdsIdx].seq);
+  const { diffs, lengthMatch } = compareProteins(expected, translated);
+  if (!diffs.length && lengthMatch) {
+    return `<div class="result ok"><strong>Match.</strong> The DNA coding sequence translates exactly to the protein record (${expected.length} residues).</div>`;
+  }
+  const rows = diffs.slice(0, 50).map((d) => `<tr><td>${d.pos}</td><td>${d.expected}</td><td>${d.observed}</td></tr>`).join("");
+  return `<div class="result bad">
+    <strong>${diffs.length} difference(s)</strong>${lengthMatch ? "" : `; lengths differ (protein ${expected.length}, translated ${translated.length})`}.
+    ${diffs.length ? `<div class="table-wrap"><table class="mono" style="border-collapse:collapse;margin-top:.5rem"><thead><tr><th style="text-align:left;padding-right:1.5rem">Position</th><th style="text-align:left;padding-right:1.5rem">Protein</th><th style="text-align:left">Translated</th></tr></thead><tbody>${rows}</tbody></table></div>${diffs.length > 50 ? `<p class="msg">Showing the first 50.</p>` : ""}` : ""}
+  </div>`;
+}
+
+function analyze() {
+  const status = $("status");
+  status.className = "msg";
+  const records = parseFasta($("fasta").value);
+  if (!records.length) {
+    status.textContent = "No FASTA records found. Each record starts with a line beginning with >.";
+    status.className = "msg err";
+    $("results-panel").hidden = true;
+    return;
+  }
+  const kinds = records.map(classify);
+  $("records").innerHTML = records.map((r, i) => renderRecord(r, kinds[i])).join("");
+  $("check").innerHTML = renderCheck(records, kinds);
+  $("results-panel").hidden = false;
+  status.textContent = `${records.length} record${records.length === 1 ? "" : "s"} analyzed.`;
+  $("results-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+// ---- Events --------------------------------------------------------------
+$("run").addEventListener("click", analyze);
+$("clear").addEventListener("click", () => {
+  $("fasta").value = "";
+  $("results-panel").hidden = true;
+  $("status").textContent = "";
+});
+$("example").addEventListener("click", () => {
+  $("fasta").value = ">example protein\nMKKPYSIG\n>example CDS\nATGAAGAAGCCTTATTCCATCGGC\n>example sgRNA\nGTTTTAGAGCTGTGTTGAAAAACACAGC";
+  $("status").textContent = "Example loaded. Choose Analyze.";
+});
+$("file").addEventListener("change", (e) => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const reader = new FileReader();
+  reader.onload = () => { $("fasta").value = reader.result; analyze(); };
+  reader.onerror = () => { $("status").textContent = "Could not read that file."; $("status").className = "msg err"; };
+  reader.readAsText(f);
+});
+$("rc-go").addEventListener("click", () => {
+  const out = reverseComplement($("rc-in").value);
+  $("rc-out").textContent = out || "Enter a DNA sequence using A, C, G, T.";
+});
+$("rc-copy").addEventListener("click", async () => {
+  const text = $("rc-out").textContent;
+  try { await navigator.clipboard.writeText(text); $("rc-copy").textContent = "Copied"; }
+  catch { $("rc-copy").textContent = "Copy failed"; }
+  setTimeout(() => ($("rc-copy").textContent = "Copy result"), 1500);
+});
+</script>
+</body>
+</html>
+>
