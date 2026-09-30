@@ -37,4 +37,4 @@ All validation happens locally in your browser. No data is sent to any server.
 Built for GHW - Open Science / AI for Good Challenge
 
 ##  Author
-[Your Name] - Karachi, PK
+eshaal-wq - Karachi, PK
