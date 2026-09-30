@@ -37,6 +37,12 @@ All validation happens locally in your browser. No data is sent to any server.
 - OpenCRISPR-1 is an open-source AI-generated gene editor, released under MIT License
 - FASTA format specification: NCBI
 - This project is not affiliated with Profluent Bio, but built as a companion validation tool for the Open Science community.
+- ```bibtex
+@article{ruffolo2024design,
+  title   = {Design of highly functional genome editors by modeling the universe of CRISPR-Cas sequences},
+  author  = {Ruffolo, Jeffrey A. and Nayfach, Stephen and Gallagher, Joseph and Bhatnagar, Aadyot and Beazer, Joel and Hussain, Riffat and Russ, Jordan and Yip, Jennifer and Hill, Emily and Pacesa, Martin and Meeske, Alexander J. and Cameron, Peter and Madani, Ali},
+  journal = {bioRxiv},
+  year    = {2024}
 
 ##  Global Hack Week - Oct 2026
 Built for GHW - Open Science / AI for Good Challenge
